@@ -83,20 +83,29 @@ class Session(models.Model):
             'merchantReference': self.merchant_reference,
             'paymentAmount': self.payment_amount,
             'currencyCode': self.currency_code,
-            'shipBeforeDate': self.ship_before_date.isoformat(),
+            'shipBeforeDate': self.ship_before_date.date().isoformat(),
             'skinCode': self.skin_code,
             'merchantAccount': settings.MERCHANT_ACCOUNT,
             'shopperLocale': self.shopper_locale,
-            'orderData': self.order_data,
             'sessionValidity': self.session_validity.isoformat(),
             'merchantReturnData': self.merchant_return_data,
-            'countryCode': self.country_code,
             'shopperEmail': self.shopper_email,
             'shopperReference': self.shopper_reference,
-            'recurringContract': self.recurring_contract,
-            'selectedRecurringDetailReference': self.recurring_detail_reference,
-            'resURL': self.res_url
         }
+
+        optional_params = {
+            'orderData': 'order_data',
+            'countryCode': 'country_code',
+            'recurringContract': 'recurring_contract',
+            'recurringContract': 'recurring_contract',
+            'selectedRecurringDetailReference': 'recurring_detail_reference',
+            'resURL': 'res_url'
+        }
+
+        for key, model_key in optional_params.items():
+            if getattr(self, model_key):
+                params[key] = getattr(self, model_key)
+                print(key)
 
         if self.allowed_payment_methods.count():
             params['allowedMethods'] = ','.join([
