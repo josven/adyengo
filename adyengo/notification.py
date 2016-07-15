@@ -34,24 +34,41 @@ def parse_notification(request):
 
         amount = item.get('amount', {})
 
+
+        defaults = {
+            'ip_address': client_ip,
+            'live': data.get('live'),
+            'event_code': item.get('eventCode'),
+            'psp_reference': item.get('pspReference'),
+            'original_reference': item.get('originalReference'),
+            'merchant_reference': item.get('merchantReference'),
+            'merchant_account_code': item.get('merchantAccountCode'),
+            'event_date': get_event_date(),
+            'success': item.get('success'),
+            'payment_method': item.get('paymentMethod'),
+            'operations': ','.join(item.get('operations', [])),
+            'reason': item.get('reason'),
+            'payment_amount': amount.get('value'),
+            'currency_code': amount.get('currency')
+        }
         # Adyen notificatins are likely to be sent twice, hence we use
         # `get_or_create()`.
-        return Notification.objects.get_or_create(
-            ip_address=client_ip,
-            live=data.get('live'),
-            event_code=item.get('eventCode'),
-            psp_reference=item.get('pspReference'),
-            original_reference=item.get('originalReference'),
-            merchant_reference=item.get('merchantReference'),
-            merchant_account_code=item.get('merchantAccountCode'),
-            event_date=get_event_date(),
-            success=item.get('success'),
-            payment_method=item.get('paymentMethod'),
-            operations=','.join(item.get('operations', [])),
-            reason=item.get('reason'),
-            payment_amount=amount.get('value'),
-            currency_code=amount.get('currency')
-        )[0]  # `get_or_create()` returns `(obj, created)`, hence the `[0]`
+        #
+        # From Adyen integration manual:
+        #   A duplicate notification is one where the eventCode and
+        #   pspReference fields are the same.
+        # Also:
+        #    The reference we have assigned to the payment. This is guaranteed to be globally unique and is used
+        #    when communicating with us about this payment. For PENDING, ERROR and CANCELLED results the
+        #    pspReference may not (yet) be known and will therefore be empty.
+        #
+        # Then we also need to do a get or create on merchant_reference
+        notification, _ = Notification.objects.get_or_create(
+                psp_reference=defaults.pop('psp_reference'),
+                event_code=defaults.pop('event_code'),
+                merchant_reference=defaults.pop('merchant_reference'),
+                defaults=defaults)
+        return notification
 
     try:
         return [
