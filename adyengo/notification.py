@@ -44,7 +44,7 @@ def parse_notification(request):
             'merchant_reference': item.get('merchantReference'),
             'merchant_account_code': item.get('merchantAccountCode'),
             'event_date': get_event_date(),
-            'success': item.get('success'),
+            'success': item.get('success') in ['true', 'True', True],
             'payment_method': item.get('paymentMethod'),
             'operations': ','.join(item.get('operations', [])),
             'reason': item.get('reason'),
