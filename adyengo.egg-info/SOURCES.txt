@@ -31,8 +31,6 @@ adyengo/migrations/0009_auto_20160528_0015.py
 adyengo/migrations/0010_auto_20160528_0022.py
 adyengo/migrations/0011_auto_20160608_1848.py
 adyengo/migrations/0012_auto_20160610_1504.py
-adyengo/migrations/0013_auto_20160802_1755.py
-adyengo/migrations/0014_auto_20160802_1802.py
 adyengo/migrations/__init__.py
 adyengo/templates/adyengo/base.html
 adyengo/templates/adyengo/api/execute_disable_recurring_contract.html
